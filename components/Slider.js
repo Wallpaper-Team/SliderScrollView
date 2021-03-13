@@ -1,35 +1,62 @@
 import { Octicons } from "@expo/vector-icons";
+import { EvilIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
-import { Image, ScrollView, StyleSheet, View } from "react-native";
+import {
+  Dimensions,
+  Image,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
+const window = Dimensions.get("window");
 
 const Slider = (props) => {
   const [position, setPosition] = useState(0);
+  const [fullMode, setFullMode] = useState(false);
+  const [width, setWidth] = useState(props.width);
+  const [height, setHeight] = useState(props.height);
 
-  const { images, width, height, maxNum, indicatorSize } = props;
+  const { images, maxNum, indicatorSize } = props;
 
   const onScrollHandler = ({ nativeEvent }) => {
     let slide = Math.ceil(
       nativeEvent.contentOffset.x / nativeEvent.layoutMeasurement.width
     );
-    if (slide >= maxNum) slide = maxNum - 1;
+    if (slide > maxNum) slide = maxNum;
     if (position !== slide) {
       setPosition(slide);
     }
   };
+  const onItemPressHandler = () => {
+    if (fullMode) {
+      setWidth(props.width);
+      setHeight(props.height);
+    } else {
+      setWidth(window.width);
+      setHeight(window.height);
+    }
+    setFullMode((previous) => !previous);
+  };
   return (
     <View style={{ width: width, height: height }}>
       <ScrollView
+        {...props}
         pagingEnabled
         horizontal
         showsHorizontalScrollIndicator={false}
         onScroll={onScrollHandler}
+        scrollEventThrottle={1}
       >
         {images.map((image, index) => (
-          <Image
-            key={index}
-            source={{ uri: image }}
-            style={{ width: width, height: height }}
-          />
+          <TouchableOpacity onPress={onItemPressHandler}>
+            <Image
+              key={index}
+              source={{ uri: image }}
+              style={{ width: width, height: height }}
+            />
+          </TouchableOpacity>
         ))}
       </ScrollView>
       <View style={styles.indicators}>
@@ -38,6 +65,17 @@ const Slider = (props) => {
             return (
               <Octicons
                 name="primitive-dot"
+                key={k}
+                size={position === k ? indicatorSize : (indicatorSize * 2) / 3}
+                style={
+                  position === k ? styles.activeIndicator : styles.indicator
+                }
+              />
+            );
+          } else if (k == maxNum) {
+            return (
+              <EvilIcons
+                name="plus"
                 key={k}
                 size={position === k ? indicatorSize : (indicatorSize * 2) / 3}
                 style={

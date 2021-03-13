@@ -46,6 +46,7 @@ const App = (props) => {
       <Slider
         images={images}
         indicatorSize={24}
+        scrollTo
         width={width}
         height={width}
         maxNum={6}
