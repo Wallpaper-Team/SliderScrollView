@@ -5,43 +5,48 @@ import { Image, ScrollView, StyleSheet, View } from "react-native";
 const Slider = (props) => {
   const [position, setPosition] = useState(0);
 
+  const { images, width, height, maxNum, indicatorSize } = props;
+
   const onScrollHandler = ({ nativeEvent }) => {
-    const slide = Math.ceil(
+    let slide = Math.ceil(
       nativeEvent.contentOffset.x / nativeEvent.layoutMeasurement.width
     );
+    if (slide >= maxNum) slide = maxNum - 1;
     if (position !== slide) {
       setPosition(slide);
     }
   };
   return (
-    <View style={{ width: props.width, height: props.height }}>
+    <View style={{ width: width, height: height }}>
       <ScrollView
         pagingEnabled
         horizontal
         showsHorizontalScrollIndicator={false}
         onScroll={onScrollHandler}
       >
-        {props.images.map((image, index) => (
+        {images.map((image, index) => (
           <Image
             key={index}
             source={{ uri: image }}
-            style={{ width: props.width, height: props.height }}
+            style={{ width: width, height: height }}
           />
         ))}
       </ScrollView>
       <View style={styles.indicators}>
-        {props.images.map((v, k) => (
-          <Octicons
-            name="primitive-dot"
-            key={k}
-            size={
-              position === k
-                ? props.indicatorSize
-                : (props.indicatorSize * 2) / 3
-            }
-            style={position === k ? styles.activeIndicator : styles.indicator}
-          />
-        ))}
+        {images.map((v, k) => {
+          if (k < maxNum) {
+            return (
+              <Octicons
+                name="primitive-dot"
+                key={k}
+                size={position === k ? indicatorSize : (indicatorSize * 2) / 3}
+                style={
+                  position === k ? styles.activeIndicator : styles.indicator
+                }
+              />
+            );
+          }
+        })}
       </View>
     </View>
   );
